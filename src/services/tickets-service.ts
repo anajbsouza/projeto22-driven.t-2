@@ -1,4 +1,4 @@
-import { notFoundError, invalidDataError } from "@/errors";
+import { notFoundError, invalidDataError, unauthorizedError } from "@/errors";
 import { CreateTicket } from "@/protocols";
 import { enrollmentRepository } from "@/repositories/enrollments-repository";
 import ticketsRepository from "@/repositories/tickets-repository";
@@ -10,7 +10,7 @@ async function getTicketType() {
 }
 
 async function getTicketByUserId(userId: number) {
-    if (!userId) throw notFoundError();
+    if (!userId) throw unauthorizedError();
 
     const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
     if(!enrollment) throw notFoundError();
@@ -22,7 +22,7 @@ async function getTicketByUserId(userId: number) {
 
 async function createTicket (userId: number, ticketTypeId: number) {
     if (!ticketTypeId) throw invalidDataError("ticket type id");
-    if (!userId) throw notFoundError();
+    if (!userId) throw unauthorizedError();
     const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
     if (!enrollment) throw notFoundError();
     const ticket = ticketsRepository.findTicketById(ticketTypeId);
