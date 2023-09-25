@@ -2,11 +2,6 @@ import { Response } from "express";
 import httpStatus from "http-status";
 import { AuthenticatedRequest } from "@/middlewares";
 import ticketService from "@/services/tickets-service";
-import { enrollmentRepository } from "@/repositories";
-import { notFoundError } from "@/errors";
-import { CreateTicket } from "@/protocols";
-import { TicketStatus } from "@prisma/client";
-import ticketsRepository from "@/repositories/tickets-repository";
 
 export async function getTicketsTypes(req: AuthenticatedRequest, res: Response) {
     const result = await ticketService.getTicketType();
@@ -25,3 +20,4 @@ export async function createTicket(req: AuthenticatedRequest, res: Response) {
     const result = await ticketService.createTicket(userId, ticketTypeId);
     res.status(httpStatus.CREATED).send(result);
 }
+
