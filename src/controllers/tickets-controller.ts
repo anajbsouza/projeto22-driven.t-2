@@ -19,6 +19,7 @@ export async function getTicketsTypes(req: AuthenticatedRequest, res: Response) 
 
 export async function getTickets(req: AuthenticatedRequest, res: Response) {
     const { userId } = req;
+    if (!userId) return res.sendStatus(httpStatus.UNAUTHORIZED);
     try {
         const ticket = await ticketService.getTicketByUserId(userId);
         if (!ticket) {
