@@ -1,4 +1,4 @@
-import { notFoundError } from "@/errors";
+import { notFoundError, invalidDataError } from "@/errors";
 import { CreateTicket } from "@/protocols";
 import { enrollmentRepository } from "@/repositories/enrollments-repository";
 import ticketsRepository from "@/repositories/tickets-repository";
@@ -10,25 +10,24 @@ async function getTicketType() {
 }
 
 async function getTicketByUserId(userId: number) {
+    if (!userId) throw notFoundError();
+
     const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
     if(!enrollment) throw notFoundError();
 
-    const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
+    const ticket = await ticketsRepository.findTicketById(userId);
     if(!ticket) throw notFoundError();
     return ticket;
 } 
 
 async function createTicket (userId: number, ticketTypeId: number) {
+    if (!ticketTypeId) throw invalidDataError("ticket type id");
+    if (!userId) throw notFoundError();
     const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
     if (!enrollment) throw notFoundError();
-    const ticketData: CreateTicket = {
-        ticketTypeId,
-        enrollmentId: enrollment.id,
-        status: TicketStatus.RESERVED,
-    };
-    await ticketsRepository.createTicket(ticketData);
-    const ticket = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
-    return ticket;
+    const ticket = ticketsRepository.findTicketById(ticketTypeId);
+    if (!ticket) throw notFoundError();
+    return await ticketsRepository.createTicket(ticketTypeId, enrollment.id);
 }
 
 const ticketService = { getTicketType, getTicketByUserId, createTicket };

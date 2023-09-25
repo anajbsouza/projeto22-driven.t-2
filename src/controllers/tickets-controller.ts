@@ -9,47 +9,19 @@ import { TicketStatus } from "@prisma/client";
 import ticketsRepository from "@/repositories/tickets-repository";
 
 export async function getTicketsTypes(req: AuthenticatedRequest, res: Response) {
-    try {
-        const ticketTypes = await ticketService.getTicketType();
-        return res.status(httpStatus.OK).send({ data: ticketTypes });
-    } catch (e) {
-        return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
-    }
+    const result = await ticketService.getTicketType();
+    res.status(httpStatus.OK).send(result);
 }
 
 export async function getTickets(req: AuthenticatedRequest, res: Response) {
     const { userId } = req;
-    if (!userId) return res.sendStatus(httpStatus.UNAUTHORIZED);
-    try {
-        const ticket = await ticketService.getTicketByUserId(userId);
-        if (!ticket) {
-            return res.sendStatus(httpStatus.NOT_FOUND);
-        }
-        return res.status(httpStatus.OK).send(ticket);
-    } catch (e) {
-        return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
-    }
+    const result = await ticketService.getTicketByUserId(userId);
+    return res.status(httpStatus.OK).send(result);
 }
 
 export async function createTicket(req: AuthenticatedRequest, res: Response) {
     const { userId } = req;
-    const { ticketTypeId } = req.body;
-    if (!ticketTypeId) {
-        return res.sendStatus(httpStatus.BAD_REQUEST);
-    }
-
-    try {
-        const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
-        if (!enrollment) throw notFoundError();
-        const ticketData: CreateTicket = {
-            ticketTypeId,
-            enrollmentId: enrollment.id,
-            status: TicketStatus.RESERVED,
-        };
-    const createdTicket = await ticketsRepository.createTicket(ticketData);
-    return createdTicket;
-    
-} catch (e) {
-        return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
-    }
+    const { ticketTypeId } = req.body as {ticketTypeId: number};;
+    const result = await ticketService.createTicket(userId, ticketTypeId);
+    res.status(httpStatus.CREATED).send(result);
 }
