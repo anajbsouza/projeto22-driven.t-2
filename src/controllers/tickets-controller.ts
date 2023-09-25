@@ -6,9 +6,13 @@ import ticketService from "@/services/tickets-service";
 export async function getTicketsTypes(req: AuthenticatedRequest, res: Response) {
     try {
         const ticketTypes = await ticketService.getTicketType();
-        return res.status(httpStatus.OK).send(ticketTypes);
+        if (ticketTypes.length === 0) {
+            return res.status(httpStatus.OK).send([]);
+        } else {
+            return res.status(httpStatus.OK).send(ticketTypes);
+        }
     } catch (e) {
-        return res.sendStatus(httpStatus.NO_CONTENT);
+        return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
     }
 }
 
@@ -18,7 +22,7 @@ export async function getTickets(req: AuthenticatedRequest, res: Response) {
         const ticket = await ticketService.getTicketByUserId(userId);
         return res.status(httpStatus.OK).send(ticket);
     } catch (e) {
-        return res.sendStatus(httpStatus.NOT_FOUND);
+        return res.sendStatus(httpStatus.UNAUTHORIZED);
     }
 }
 
@@ -29,6 +33,6 @@ export async function createTicket(req: AuthenticatedRequest, res: Response) {
         const ticket = await ticketService.createTicket(userId, ticketTypeId);
         res.send(ticket);
     } catch (e) {
-        return res.sendStatus(httpStatus.NOT_FOUND);
+        return res.sendStatus(httpStatus.UNAUTHORIZED);
     }
 }
