@@ -20,9 +20,12 @@ export async function getTickets(req: AuthenticatedRequest, res: Response) {
     const { userId } = req;
     try {
         const ticket = await ticketService.getTicketByUserId(userId);
+        if (!ticket) {
+            return res.sendStatus(httpStatus.NOT_FOUND);
+        }
         return res.status(httpStatus.OK).send(ticket);
     } catch (e) {
-        return res.sendStatus(httpStatus.UNAUTHORIZED);
+        return res.sendStatus(httpStatus.INTERNAL_SERVER_ERROR);
     }
 }
 
